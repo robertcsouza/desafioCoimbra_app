@@ -1,6 +1,5 @@
-import 'package:desafiocoimbra/DAO/ContratanteDAO.dart';
-import 'package:desafiocoimbra/DAO/EnderecoDAO.dart';
-import 'package:desafiocoimbra/Model/Contratante.dart';
+import 'package:desafiocoimbra/DAO/ContratadoDAO.dart';
+import 'package:desafiocoimbra/Model/Contratado.dart';
 import 'package:desafiocoimbra/Model/Endereco.dart';
 import 'package:desafiocoimbra/components/AppBar.dart';
 import 'package:desafiocoimbra/components/Buttons.dart';
@@ -8,12 +7,12 @@ import 'package:desafiocoimbra/components/Inputs.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 
-class AddContratante extends StatefulWidget {
+class UpdateContratado extends StatefulWidget {
   @override
-  _AddContratanteState createState() => _AddContratanteState();
+  _UpdateContratadoState createState() => _UpdateContratadoState();
 }
 
-class _AddContratanteState extends State<AddContratante> {
+class _UpdateContratadoState extends State<UpdateContratado> {
   TextEditingController razaoSocial = TextEditingController();
   TextEditingController cnpj = TextEditingController();
   TextEditingController cidade = TextEditingController();
@@ -21,47 +20,96 @@ class _AddContratanteState extends State<AddContratante> {
   TextEditingController rua = TextEditingController();
   TextEditingController numero = TextEditingController();
   TextEditingController telefone = TextEditingController();
-  ContratanteDAO contratanteDAO;
+  ContratadoDAO contratadoDAO;
+  Contratado contratado;
+  Endereco endereco;
+  bool tongle = false;
 
-  _save() async {
+  _update() async {
     if (razaoSocial.text.isNotEmpty &&
         cnpj.text.isNotEmpty &&
         cidade.text.isNotEmpty &&
         bairro.text.isNotEmpty &&
         numero.text.isNotEmpty &&
         telefone.text.isNotEmpty) {
-      Contratante contratante = Contratante(
-        razaoSocial: razaoSocial.text,
-        cnpj: int.parse(cnpj.text),
-        telefone: int.parse(telefone.text),
-      );
+      Contratado contratanteUpdated = Contratado(
+          razaoSocial: razaoSocial.text,
+          cnpj: int.parse(cnpj.text),
+          telefone: int.parse(telefone.text),
+          idContratado: contratado.idContratado);
 
-      Endereco endereco = Endereco(
+      Endereco enderecoUpdated = Endereco(
           cidade: cidade.text,
           bairro: bairro.text,
           rua: rua.text,
-          numero: int.parse(numero.text));
+          numero: int.parse(numero.text),
+          idEndereco: endereco.idEndereco);
 
-      await contratanteDAO.insert(contratante: contratante, endereco: endereco);
+      await contratadoDAO.update(
+          contratado: contratanteUpdated, endereco: enderecoUpdated);
       Future.delayed(Duration(seconds: 3), () {
-        Navigator.pushReplacementNamed(context, '/contratante');
+        Navigator.pushReplacementNamed(context, '/contratado');
       });
     } else {
       EasyLoading.showError('Por favor preencha todos os campos');
     }
   }
 
+  _delete() async {
+    await contratadoDAO.delete(contratado.idContratado);
+    Future.delayed(Duration(seconds: 3), () {
+      Navigator.pushReplacementNamed(context, '/contratado');
+    });
+  }
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    contratanteDAO = ContratanteDAO();
+    contratadoDAO = ContratadoDAO();
+  }
+
+  _setfields() {
+    if (tongle == false) {
+      razaoSocial.text = contratado.razaoSocial;
+      cnpj.text = contratado.cnpj.toString();
+      cidade.text = endereco.cidade;
+      bairro.text = endereco.bairro;
+      rua.text = endereco.rua;
+      numero.text = endereco.numero.toString();
+      telefone.text = contratado.telefone.toString();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final args = ModalRoute.of(context).settings.arguments;
+    Map<String, dynamic> arg = args;
+
+    setState(() {
+      contratado = Contratado(
+          razaoSocial: arg['razaoSocial'],
+          cnpj: int.parse(arg['cnpj']),
+          enderecoFK: arg['endereco_idendereco'],
+          telefone: arg['telefone'],
+          idContratado: arg['idContratado']);
+
+      endereco = Endereco(
+          cidade: arg['cidade'],
+          bairro: arg['bairro'],
+          rua: arg['rua'],
+          idEndereco: arg['idEndereco'],
+          numero: arg['numero']);
+    });
+
+    _setfields();
+
+    setState(() {
+      tongle = true;
+    });
+
     return Scaffold(
-      appBar: appbar(title: 'Adicionar Contratante'),
+      appBar: appbar(title: 'Atualizar Contratante'),
       body: body(),
     );
   }
@@ -111,14 +159,26 @@ class _AddContratanteState extends State<AddContratante> {
                 hint: 'Telefone',
                 obscure: false,
                 textInputType: TextInputType.phone),
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: btPrimary(
-                  call: () {
-                    _save();
-                  },
-                  lable: 'Salvar',
-                  context: context),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                btUpdate(
+                    call: () {
+                      _update();
+                    },
+                    lable: 'Atualizar',
+                    context: context),
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: btDelete(
+                      call: () {
+                        _delete();
+                      },
+                      lable: 'Deletar',
+                      context: context),
+                ),
+              ],
             )
           ],
         ),

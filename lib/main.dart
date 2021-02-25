@@ -1,9 +1,14 @@
+import 'package:desafiocoimbra/Model/Status.dart';
 import 'package:desafiocoimbra/components/AppBar.dart';
 import 'package:desafiocoimbra/components/Buttons.dart';
 import 'package:desafiocoimbra/components/NaviBar.dart';
+import 'package:desafiocoimbra/config/DatabaseConfig.dart';
+import 'package:desafiocoimbra/config/FillTables.dart';
 import 'package:desafiocoimbra/config/Routes.dart';
+import 'package:desafiocoimbra/config/Tables.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:sqflite/sqflite.dart';
 
 void main() {
   runApp(MyApp());
@@ -44,6 +49,28 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  Database db;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _inicializeDB();
+  }
+
+  _inicializeDB() async {
+    DatabaseConfig config = DatabaseConfig();
+    config.inicializaDB();
+    db = await config.database;
+    config.createTables(db: db, sql: STATUS, verson: 1);
+    config.createTables(db: db, sql: CONDICOES, verson: 1);
+    config.createTables(db: db, sql: TIPO, verson: 1);
+    config.createTables(db: db, sql: ENDERECO, verson: 1);
+    config.createTables(db: db, sql: CONTRATANTE, verson: 1);
+    config.createTables(db: db, sql: CONTRATADO, verson: 1);
+    config.createTables(db: db, sql: CONTRATO, verson: 1);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

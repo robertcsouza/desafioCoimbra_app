@@ -3,13 +3,15 @@ import 'package:flutter/material.dart';
 Widget inputText(
     {@required TextEditingController controller,
     @required String hint,
-    @required bool obscure}) {
+    @required bool obscure,
+    @required TextInputType textInputType}) {
   return Padding(
     padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 0),
     child: Container(
       child: TextField(
         obscureText: obscure,
         controller: controller,
+        keyboardType: textInputType,
         style: TextStyle(fontSize: 14),
         decoration: InputDecoration(
           hintText: hint,

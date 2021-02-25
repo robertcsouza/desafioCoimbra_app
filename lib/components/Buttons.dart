@@ -28,6 +28,54 @@ Widget btPrimary(
   );
 }
 
+Widget btUpdate(
+    {@required Function call, @required String lable, @required context}) {
+  return Padding(
+    padding: const EdgeInsets.only(left: 16.0, right: 16.0),
+    child: RaisedButton(
+      color: Colors.yellow,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10.0),
+      ),
+      onPressed: call,
+      child: Padding(
+        padding: const EdgeInsets.only(top: 16.0, bottom: 16),
+        child: Text(
+          lable,
+          style: TextStyle(
+            color: light,
+            fontSize: 16,
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
+Widget btDelete(
+    {@required Function call, @required String lable, @required context}) {
+  return Padding(
+    padding: const EdgeInsets.only(left: 16.0, right: 16.0),
+    child: RaisedButton(
+      color: Colors.red,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10.0),
+      ),
+      onPressed: call,
+      child: Padding(
+        padding: const EdgeInsets.only(top: 16.0, bottom: 16),
+        child: Text(
+          lable,
+          style: TextStyle(
+            color: light,
+            fontSize: 16,
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
 Widget btSecondary(
     {@required Function call, @required String lable, @required context}) {
   return Padding(
