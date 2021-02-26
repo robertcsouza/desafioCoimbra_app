@@ -22,6 +22,10 @@ class Contratante {
     return idContratante;
   }
 
+  asString() {
+    return this.razaoSocial;
+  }
+
   toMap() {
     Map<String, dynamic> map = {
       'razaoSocial': this.razaoSocial,

@@ -79,23 +79,23 @@ Widget btDelete(
 Widget btSecondary(
     {@required Function call, @required String lable, @required context}) {
   return Padding(
-    padding: const EdgeInsets.only(top: 16.0),
+    padding: const EdgeInsets.only(top: 8.0),
     child: Container(
       width: MediaQuery.of(context).size.width,
       child: Padding(
-        padding: const EdgeInsets.only(left: 16.0, right: 16.0),
+        padding: const EdgeInsets.only(left: 8.0, right: 8.0),
         child: RaisedButton(
-          color: primary,
+          color: Colors.white,
           shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10.0),
               side: BorderSide(color: primary)),
           onPressed: call,
           child: Padding(
-            padding: const EdgeInsets.only(top: 16.0, bottom: 16),
+            padding: const EdgeInsets.only(top: 8.0, bottom: 8),
             child: Text(
               lable,
               style: TextStyle(
-                color: light,
+                color: primary,
                 fontSize: 16,
               ),
             ),

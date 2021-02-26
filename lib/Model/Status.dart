@@ -6,6 +6,9 @@ class Status {
     this.status = status;
     this.id = id;
   }
+  asString() {
+    return this.status;
+  }
 
   toMap() {
     Map<String, dynamic> map = {"status": this.status};

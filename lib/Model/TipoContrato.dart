@@ -7,6 +7,10 @@ class TipoContrato {
     this.tipo = tipo;
   }
 
+  asString() {
+    return this.tipo;
+  }
+
   toMap() {
     Map<String, dynamic> map = {'tipo': this.tipo};
     return map;

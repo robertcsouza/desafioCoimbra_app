@@ -27,7 +27,7 @@ class CondicoesFinanceiras {
       'vigencia': this.vigencia,
       'valor': this.valor,
       'prazo_inicial': this.prazoInicial,
-      'pazo_final': this.prazoFinal
+      'prazo_final': this.prazoFinal
     };
 
     return map;
