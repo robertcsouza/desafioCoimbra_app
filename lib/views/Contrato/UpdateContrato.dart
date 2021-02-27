@@ -18,12 +18,12 @@ import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 
-class AddContrato extends StatefulWidget {
+class UpdateContrato extends StatefulWidget {
   @override
-  _AddContratoState createState() => _AddContratoState();
+  _UpdateContratoState createState() => _UpdateContratoState();
 }
 
-class _AddContratoState extends State<AddContrato> {
+class _UpdateContratoState extends State<UpdateContrato> {
   StatusDAO statusDAO = StatusDAO();
   TipoContratoDAO tipoContratoDAO = TipoContratoDAO();
   ContratanteDAO contratanteDAO = ContratanteDAO();
@@ -48,6 +48,12 @@ class _AddContratoState extends State<AddContrato> {
   int contratadoId;
   int tipoContratoId;
   int statusId = 1;
+
+  Contratado selectContratado;
+  Contratante selectContratante;
+  Status selectStatus;
+  TipoContrato selectTipoContrato;
+  CondicoesFinanceiras selectCondicoesFinanceiras;
 
   getListStatus() async {
     var rawStatus = await statusDAO.getStatus();
@@ -135,8 +141,27 @@ class _AddContratoState extends State<AddContrato> {
 
   @override
   Widget build(BuildContext context) {
+    final args = ModalRoute.of(context).settings.arguments;
+    Map<String, dynamic> arg = args;
+
+    selectContratado = arg['contratado'];
+    selectStatus = arg['status'];
+    selectTipoContrato = arg['tipo'];
+    selectCondicoesFinanceiras = arg['condicoes'];
+    contratadoId = selectContratado.idContratado;
+    statusId = selectStatus.id;
+    tipoContratoId = selectTipoContrato.idTipoContrato;
+    carencia.text = selectCondicoesFinanceiras.carencia.toString();
+    vigencia.text = selectCondicoesFinanceiras.vigencia.toString();
+    valor.text = selectCondicoesFinanceiras.valor.toString();
+    dataInicial = DateTime.fromMillisecondsSinceEpoch(
+        selectCondicoesFinanceiras.prazoInicial);
+    dataInicialStr = dateConvert(dataInicial, '-');
+    dataFinal = DateTime.fromMillisecondsSinceEpoch(
+        selectCondicoesFinanceiras.prazoFinal);
+    dataFinalStr = dateConvert(dataFinal, '-');
     return Scaffold(
-      appBar: appbar(title: 'Adicionar novo Contrato'),
+      appBar: appbar(title: 'Atualizar Contrato'),
       body: body(),
     );
   }
@@ -171,9 +196,7 @@ class _AddContratoState extends State<AddContrato> {
                 child: DropdownSearch<TipoContrato>(
                   items: tipoContrato,
                   label: "Tipo Contrato",
-                  onFind: (String filter) {
-                    print(filter);
-                  },
+                  selectedItem: selectTipoContrato,
                   itemAsString: (TipoContrato u) => u.asString(),
                   onChanged: (TipoContrato data) {
                     setState(() {
@@ -188,13 +211,25 @@ class _AddContratoState extends State<AddContrato> {
                 child: DropdownSearch<Contratado>(
                   items: contratados,
                   label: "Contratado",
-                  onFind: (String filter) {
-                    print(filter);
-                  },
+                  selectedItem: selectContratado,
                   itemAsString: (Contratado u) => u.asString(),
                   onChanged: (Contratado data) {
                     setState(() {
                       contratadoId = data.idContratado;
+                    });
+                  },
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: DropdownSearch<Status>(
+                  items: status,
+                  label: "Status",
+                  selectedItem: selectStatus,
+                  itemAsString: (Status u) => u.asString(),
+                  onChanged: (Status data) {
+                    setState(() {
+                      statusId = data.id;
                     });
                   },
                 ),

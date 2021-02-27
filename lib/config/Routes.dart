@@ -5,6 +5,8 @@ import 'package:desafiocoimbra/views/Contratante/Contratante.dart';
 import 'package:desafiocoimbra/views/Contratante/AddContratante.dart';
 import 'package:desafiocoimbra/views/Contratante/UpdateContratante.dart';
 import 'package:desafiocoimbra/views/Contrato/AddContrato.dart';
+import 'package:desafiocoimbra/views/Contrato/DetailContrato.dart';
+import 'package:desafiocoimbra/views/Contrato/UpdateContrato.dart';
 
 route() {
   return {
@@ -19,5 +21,7 @@ route() {
 
     // rotas contrato
     '/contrato/add': (context) => AddContrato(),
+    '/contrato/detail': (context) => DetailContrato(),
+    '/contrato/update': (context) => UpdateContrato(),
   };
 }
