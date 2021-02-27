@@ -54,25 +54,29 @@ class _ContratanteState extends State<Contratante> {
               });
               return SizedBox();
             } else {
-              return ListView.builder(
-                itemCount: snapshot.data.length,
-                itemBuilder: (context, index) {
-                  return Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Card(
-                      child: ListTile(
-                        onTap: () {
-                          Navigator.pushNamed(context, '/contratante/update',
-                              arguments: snapshot.data[index]);
-                        },
-                        title: Text(snapshot.data[index]['razaoSocial']),
-                        subtitle:
-                            Text(snapshot.data[index]['telefone'].toString()),
+              if (snapshot.data != null) {
+                return ListView.builder(
+                  itemCount: snapshot.data.length,
+                  itemBuilder: (context, index) {
+                    return Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Card(
+                        child: ListTile(
+                          onTap: () {
+                            Navigator.pushNamed(context, '/contratante/update',
+                                arguments: snapshot.data[index]);
+                          },
+                          title: Text(snapshot.data[index]['c_razaoSocial']),
+                          subtitle: Text(
+                              snapshot.data[index]['c_telefone'].toString()),
+                        ),
                       ),
-                    ),
-                  );
-                },
-              );
+                    );
+                  },
+                );
+              } else {
+                return SizedBox();
+              }
             }
           },
         ));

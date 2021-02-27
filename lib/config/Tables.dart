@@ -11,7 +11,7 @@ final String ENDERECO =
     "CREATE TABLE IF NOT EXISTS 'endereco' ('idEndereco'	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, 'cidade'	TEXT NOT NULL, 'bairro'	TEXT NOT NULL, 'numero'	INTEGER NOT NULL, 'rua'	TEXT)";
 
 final String CONTRATANTE =
-    "CREATE TABLE IF NOT EXISTS 'contratante' ('idContratante'	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,'razaoSocial'	TEXT NOT NULL,'cnpj'	INTEGER NOT NULL,'telefone'	INTEGER NOT NULL,'endereco_idendereco'	INTEGER,FOREIGN KEY('endereco_idendereco') REFERENCES 'endereco'('idEndereco'))";
+    "CREATE TABLE IF NOT EXISTS 'contratante' ('idContratante'	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,'c_razaoSocial'	TEXT NOT NULL,'c_cnpj'	INTEGER NOT NULL,'c_telefone'	INTEGER NOT NULL,'c_endereco_idendereco'	INTEGER,FOREIGN KEY('c_endereco_idendereco') REFERENCES 'endereco'('idEndereco'))";
 
 final String CONTRATADO =
     "CREATE TABLE IF NOT EXISTS 'contratado' ('idContratado'	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,'razaoSocial'	TEXT NOT NULL,'cnpj'	TEXT NOT NULL,'telefone'	INTEGER NOT NULL,'endereco_idendereco'	INTEGER,FOREIGN KEY('endereco_idendereco') REFERENCES 'endereco'('idEndereco'))";

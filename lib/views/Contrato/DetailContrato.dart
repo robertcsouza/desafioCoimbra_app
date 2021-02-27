@@ -1,11 +1,14 @@
+import 'package:desafiocoimbra/DAO/ContratoDAO.dart';
 import 'package:desafiocoimbra/Model/CondicoesFinanceiras.dart';
 import 'package:desafiocoimbra/Model/Contratado.dart';
+import 'package:desafiocoimbra/Model/Contratante.dart';
 import 'package:desafiocoimbra/Model/Status.dart';
 import 'package:desafiocoimbra/Model/TipoContrato.dart';
 import 'package:desafiocoimbra/components/AppBar.dart';
 import 'package:desafiocoimbra/components/Buttons.dart';
 import 'package:desafiocoimbra/helper/ConvertDate.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 
 class DetailContrato extends StatefulWidget {
   @override
@@ -13,20 +16,32 @@ class DetailContrato extends StatefulWidget {
 }
 
 class _DetailContratoState extends State<DetailContrato> {
+  ContratoDAO contratoDAO = ContratoDAO();
   Contratado contratado;
+  Contratante contratante;
   CondicoesFinanceiras condicoesFinanceiras;
   Status status;
   TipoContrato tipoContrato;
+  int idContrato;
   @override
   Widget build(BuildContext context) {
     var args = ModalRoute.of(context).settings.arguments;
     Map<String, dynamic> map = args;
+    idContrato = map['idContrato'];
+
     contratado = Contratado(
         idContratado: map['idContratado'],
         razaoSocial: map['razaoSocial'],
-        cnpj: map['cnpj'],
+        cnpj: int.parse(map['cnpj']),
         enderecoFK: map['endereco_idendereco'],
         telefone: map['telefone']);
+
+    contratante = Contratante(
+        idContratante: map['idContratante'],
+        razaoSocial: map['c_razaoSocial'],
+        cnpj: map['c_cnpj'],
+        enderecoFK: map['c_endereco_idendereco'],
+        telefone: map['c_telefone']);
 
     condicoesFinanceiras = CondicoesFinanceiras(
         id: map['idCondicoesFinanceiras'],
@@ -73,6 +88,23 @@ class _DetailContratoState extends State<DetailContrato> {
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Text('Telefone: ${contratado.telefone}'),
+              ),
+              Text(
+                'Contratante',
+                style: TextStyle(
+                    fontWeight: FontWeight.bold, color: Colors.black54),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text('Razão Social: ${contratante.razaoSocial}'),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text('CNPJ: ${contratante.cnpj}'),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text('Telefone: ${contratante.telefone}'),
               ),
               Padding(
                 padding: const EdgeInsets.all(8.0),
@@ -141,15 +173,27 @@ class _DetailContratoState extends State<DetailContrato> {
                           Navigator.pushReplacementNamed(
                               context, '/contrato/update',
                               arguments: {
+                                'idContrato': idContrato,
                                 'contratado': contratado,
                                 'condicoes': condicoesFinanceiras,
                                 'status': status,
-                                'tipo': tipoContrato
+                                'tipo': tipoContrato,
+                                'contratante': contratante
                               });
                         },
                         lable: 'Editar',
                         context: context),
-                    btDelete(call: () {}, lable: 'Deletar', context: context),
+                    btDelete(
+                        call: () async {
+                          await contratoDAO.delete(idContrato);
+                          EasyLoading.showSuccess(
+                              'Contrato  deletado com sucesso');
+                          Future.delayed(Duration(seconds: 2), () {
+                            Navigator.pushReplacementNamed(context, '/');
+                          });
+                        },
+                        lable: 'Deletar',
+                        context: context),
                   ],
                 ),
               )

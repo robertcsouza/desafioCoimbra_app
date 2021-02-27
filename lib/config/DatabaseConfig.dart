@@ -1,5 +1,8 @@
 import 'dart:io';
 
+import 'package:desafiocoimbra/Model/Status.dart';
+import 'package:desafiocoimbra/Model/TipoContrato.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -43,5 +46,34 @@ class DatabaseConfig {
 
   createTables({Database db, int verson, String sql}) async {
     await db.execute(sql).then((value) => {print('tabela criada')});
+  }
+
+  drop({String table}) async {
+    _database = await _databaseConfig.database;
+    _database.execute("DROP TABLE $table").then((value) {
+      EasyLoading.showSuccess('executado com sucesso');
+    });
+  }
+
+  fillTipo() async {
+    _database = await _databaseConfig.database;
+
+    var tipos = ['emprestimo', 'arrendamento', 'seguro', 'locacao'];
+
+    for (var i = 0; i < tipos.length; i++) {
+      TipoContrato tipo = TipoContrato(tipo: tipos[i]);
+      _database.insert('tipoContrato', tipo.toMap());
+    }
+  }
+
+  fillStatus() async {
+    _database = await _databaseConfig.database;
+
+    var stat = ['edicao', 'ativo', 'cancelado'];
+
+    for (var i = 0; i < stat.length; i++) {
+      Status status = Status(status: stat[i]);
+      _database.insert('status', status.toMap());
+    }
   }
 }

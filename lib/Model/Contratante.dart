@@ -28,10 +28,10 @@ class Contratante {
 
   toMap() {
     Map<String, dynamic> map = {
-      'razaoSocial': this.razaoSocial,
-      'cnpj': this.cnpj,
-      'telefone': this.telefone,
-      'endereco_idendereco': this.enderecoFK
+      'c_razaoSocial': this.razaoSocial,
+      'c_cnpj': this.cnpj,
+      'c_telefone': this.telefone,
+      'c_endereco_idendereco': this.enderecoFK
     };
 
     return map;

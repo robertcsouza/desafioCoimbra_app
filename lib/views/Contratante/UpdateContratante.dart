@@ -87,10 +87,10 @@ class _UpdateContratanteState extends State<UpdateContratante> {
     Map<String, dynamic> arg = args;
     setState(() {
       contratante = Contratante(
-          razaoSocial: arg['razaoSocial'],
-          cnpj: arg['cnpj'],
-          enderecoFK: arg['endereco_idendereco'],
-          telefone: arg['telefone'],
+          razaoSocial: arg['c_razaoSocial'],
+          cnpj: arg['c_cnpj'],
+          enderecoFK: arg['c_endereco_idendereco'],
+          telefone: arg['c_telefone'],
           idContratante: arg['idContratante']);
 
       endereco = Endereco(

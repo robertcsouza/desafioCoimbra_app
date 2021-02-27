@@ -24,6 +24,7 @@ class UpdateContrato extends StatefulWidget {
 }
 
 class _UpdateContratoState extends State<UpdateContrato> {
+  bool tongle = false;
   StatusDAO statusDAO = StatusDAO();
   TipoContratoDAO tipoContratoDAO = TipoContratoDAO();
   ContratanteDAO contratanteDAO = ContratanteDAO();
@@ -47,7 +48,8 @@ class _UpdateContratoState extends State<UpdateContrato> {
   int contratanteId;
   int contratadoId;
   int tipoContratoId;
-  int statusId = 1;
+  int statusId;
+  int idContrato;
 
   Contratado selectContratado;
   Contratante selectContratante;
@@ -80,8 +82,8 @@ class _UpdateContratoState extends State<UpdateContrato> {
     for (var item in rawContratante) {
       Contratante contratante = Contratante(
           idContratante: item['idContratante'],
-          razaoSocial: item['razaoSocial'],
-          enderecoFK: item['endereco_idendereco']);
+          razaoSocial: item['c_razaoSocial'],
+          enderecoFK: item['c_endereco_idendereco']);
       contratantes.add(contratante);
     }
   }
@@ -139,27 +141,41 @@ class _UpdateContratoState extends State<UpdateContrato> {
     getListContratado();
   }
 
+  _fillFields(arg) {
+    if (tongle == false) {
+      idContrato = arg['idContrato'];
+      selectContratado = arg['contratado'];
+      selectStatus = arg['status'];
+      selectTipoContrato = arg['tipo'];
+      selectCondicoesFinanceiras = arg['condicoes'];
+      selectContratante = arg['contratante'];
+      contratadoId = selectContratado.idContratado;
+      statusId = selectStatus.id;
+      contratanteId = selectContratante.idContratante;
+      tipoContratoId = selectTipoContrato.idTipoContrato;
+      carencia.text = selectCondicoesFinanceiras.carencia.toString();
+      vigencia.text = selectCondicoesFinanceiras.vigencia.toString();
+      valor.text = selectCondicoesFinanceiras.valor.toString();
+      dataInicial = DateTime.fromMillisecondsSinceEpoch(
+          selectCondicoesFinanceiras.prazoInicial);
+      dataInicialStr = dateConvert(dataInicial, '-');
+      dataFinal = DateTime.fromMillisecondsSinceEpoch(
+          selectCondicoesFinanceiras.prazoFinal);
+      dataFinalStr = dateConvert(dataFinal, '-');
+      setState(() {
+        tongle = true;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final args = ModalRoute.of(context).settings.arguments;
     Map<String, dynamic> arg = args;
+    print(arg);
+    //exec once
+    _fillFields(arg);
 
-    selectContratado = arg['contratado'];
-    selectStatus = arg['status'];
-    selectTipoContrato = arg['tipo'];
-    selectCondicoesFinanceiras = arg['condicoes'];
-    contratadoId = selectContratado.idContratado;
-    statusId = selectStatus.id;
-    tipoContratoId = selectTipoContrato.idTipoContrato;
-    carencia.text = selectCondicoesFinanceiras.carencia.toString();
-    vigencia.text = selectCondicoesFinanceiras.vigencia.toString();
-    valor.text = selectCondicoesFinanceiras.valor.toString();
-    dataInicial = DateTime.fromMillisecondsSinceEpoch(
-        selectCondicoesFinanceiras.prazoInicial);
-    dataInicialStr = dateConvert(dataInicial, '-');
-    dataFinal = DateTime.fromMillisecondsSinceEpoch(
-        selectCondicoesFinanceiras.prazoFinal);
-    dataFinalStr = dateConvert(dataFinal, '-');
     return Scaffold(
       appBar: appbar(title: 'Atualizar Contrato'),
       body: body(),
@@ -179,9 +195,7 @@ class _UpdateContratoState extends State<UpdateContrato> {
                 child: DropdownSearch<Contratante>(
                   items: contratantes,
                   label: "Contratante",
-                  onFind: (String filter) {
-                    print(filter);
-                  },
+                  selectedItem: selectContratante,
                   itemAsString: (Contratante u) => u.asString(),
                   onChanged: (Contratante data) {
                     setState(() {
@@ -215,6 +229,7 @@ class _UpdateContratoState extends State<UpdateContrato> {
                   itemAsString: (Contratado u) => u.asString(),
                   onChanged: (Contratado data) {
                     setState(() {
+                      selectContratado = data;
                       contratadoId = data.idContratado;
                     });
                   },
@@ -297,32 +312,28 @@ class _UpdateContratoState extends State<UpdateContrato> {
         contratadoId > 0 &&
         tipoContratoId > 0) {
       CondicoesFinanceiras condicoesFinanceiras = CondicoesFinanceiras(
-        carencia: int.parse(carencia.text),
-        vigencia: int.parse(vigencia.text),
-        valor: int.parse(valor.text),
-        prazoInicial: dataInicial.millisecondsSinceEpoch,
-        prazoFinal: dataFinal.millisecondsSinceEpoch,
-      );
+          carencia: int.parse(carencia.text),
+          vigencia: int.parse(vigencia.text),
+          valor: int.parse(valor.text),
+          prazoInicial: dataInicial.millisecondsSinceEpoch,
+          prazoFinal: dataFinal.millisecondsSinceEpoch,
+          id: selectCondicoesFinanceiras.id);
 
-      int idCondicoes =
-          await condicoesDAO.insert(condicoesFinanceiras: condicoesFinanceiras);
+      Contrato contrato = Contrato(
+          idContrato: idContrato,
+          condicoesFK: selectCondicoesFinanceiras.id,
+          contratadoFK: contratadoId,
+          contratanteFK: contratanteId,
+          statusFK: statusId,
+          tipoContratoFK: tipoContratoId,
+          dataCriacao: selectedDate.millisecondsSinceEpoch);
+      await contratoDAO.update(
+          contrato: contrato, condicoesFinanceiras: condicoesFinanceiras);
 
-      if (idCondicoes > 0) {
-        Contrato contrato = Contrato(
-            condicoesFK: idCondicoes,
-            contratadoFK: contratadoId,
-            contratanteFK: contratanteId,
-            statusFK: statusId,
-            tipoContratoFK: tipoContratoId,
-            dataCriacao: selectedDate.millisecondsSinceEpoch);
-        await contratoDAO.insert(contrato: contrato);
-        EasyLoading.showSuccess('contrato cadastrado com sucesso');
-        Future.delayed(Duration(seconds: 2), () {
-          Navigator.pushReplacementNamed(context, '/');
-        });
-      } else {
-        EasyLoading.showError('nao foi possivel salvar o Contrato');
-      }
+      EasyLoading.showSuccess('contrato cadastrado com sucesso');
+      Future.delayed(Duration(seconds: 2), () {
+        Navigator.pushReplacementNamed(context, '/');
+      });
     } else {
       EasyLoading.showError('Por favor preencha todos os campos');
     }

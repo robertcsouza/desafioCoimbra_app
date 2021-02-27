@@ -39,7 +39,7 @@ class _AddContratoState extends State<AddContrato> {
   TextEditingController carencia = TextEditingController();
   TextEditingController vigencia = TextEditingController();
   TextEditingController valor = TextEditingController();
-  DateTime selectedDate = DateTime.now();
+  DateTime selectedDate = dateUtc(DateTime.now(), '-');
   DateTime dataInicial = null;
   DateTime dataFinal = null;
   String dataInicialStr = 'Prazo inicial';
@@ -74,8 +74,8 @@ class _AddContratoState extends State<AddContrato> {
     for (var item in rawContratante) {
       Contratante contratante = Contratante(
           idContratante: item['idContratante'],
-          razaoSocial: item['razaoSocial'],
-          enderecoFK: item['endereco_idendereco']);
+          razaoSocial: item['c_razaoSocial'],
+          enderecoFK: item['c_endereco_idendereco']);
       contratantes.add(contratante);
     }
   }
@@ -280,6 +280,7 @@ class _AddContratoState extends State<AddContrato> {
             statusFK: statusId,
             tipoContratoFK: tipoContratoId,
             dataCriacao: selectedDate.millisecondsSinceEpoch);
+
         await contratoDAO.insert(contrato: contrato);
         EasyLoading.showSuccess('contrato cadastrado com sucesso');
         Future.delayed(Duration(seconds: 2), () {

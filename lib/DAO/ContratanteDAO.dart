@@ -19,7 +19,7 @@ class ContratanteDAO {
     easyLoading();
     db.insert('endereco', endereco.toMap()).then((id) {
       Map<String, dynamic> map = contratante.toMap();
-      map.update('endereco_idendereco', (value) => id);
+      map.update('c_endereco_idendereco', (value) => id);
       db.insert('contratante', map).then((value) {
         EasyLoading.showSuccess('Contratante cadastrado com sucesso');
       }).catchError((error) {
@@ -43,7 +43,7 @@ class ContratanteDAO {
     db.update('endereco', endereco.toMap(),
         where: 'idEndereco = ?', whereArgs: [endereco.idEndereco]).then((id) {
       Map<String, dynamic> map = contratante.toMap();
-      map.update('endereco_idendereco', (value) => id);
+      map.update('c_endereco_idendereco', (value) => id);
       db.update('contratante', map,
           where: 'idContratante = ?',
           whereArgs: [contratante.idContratante]).then((value) {
@@ -57,6 +57,6 @@ class ContratanteDAO {
   Future getContratantes() async {
     Database db = await config.database;
     return db.rawQuery(
-        "SELECT * FROM contratante JOIN endereco on endereco.idEndereco = contratante.endereco_idendereco");
+        "SELECT * FROM contratante JOIN endereco on endereco.idEndereco = contratante.c_endereco_idendereco");
   }
 }

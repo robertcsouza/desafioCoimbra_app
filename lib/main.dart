@@ -56,6 +56,9 @@ class _MyHomePageState extends State<MyHomePage> {
   List<Status> status = List();
   List<Contrato> contratos = List();
   Future futureContratos;
+  DateTime _selectedDate = DateTime.now();
+  String _selectedDateStr = 'Data';
+  TextEditingController controller = TextEditingController();
   @override
   void initState() {
     // TODO: implement initState
@@ -94,19 +97,42 @@ class _MyHomePageState extends State<MyHomePage> {
     DatabaseConfig config = DatabaseConfig();
     config.inicializaDB();
     db = await config.database;
-    //config.createTables(db: db, sql: STATUS, verson: 1);
-    //config.createTables(db: db, sql: CONDICOES, verson: 1);
-    //config.createTables(db: db, sql: TIPO, verson: 1);
-    //config.createTables(db: db, sql: ENDERECO, verson: 1);
-    //config.createTables(db: db, sql: CONTRATANTE, verson: 1);
-    // config.createTables(db: db, sql: CONTRATADO, verson: 1);
+    //await config.drop(table: 'status');
+    //await config.drop(table: 'tipoContrato');
 
-    config.createTables(db: db, sql: CONTRATO, verson: 1);
+    await config.createTables(db: db, sql: STATUS, verson: 1);
+    await config.createTables(db: db, sql: CONDICOES, verson: 1);
+    await config.createTables(db: db, sql: TIPO, verson: 1);
+    await config.createTables(db: db, sql: ENDERECO, verson: 1);
+    await config.createTables(db: db, sql: CONTRATANTE, verson: 1);
+    await config.createTables(db: db, sql: CONTRATADO, verson: 1);
+    await config.createTables(db: db, sql: CONTRATO, verson: 1);
+    //await config.fillStatus();
+    //await config.fillTipo();
+    //print(await db.rawQuery('PRAGMA table_info(contratante)'));
+  }
+
+  Future<void> _getData(BuildContext context) async {
+    final DateTime picked = await showDatePicker(
+        context: context,
+        firstDate: DateTime(2015, 8),
+        initialDate: _selectedDate,
+        lastDate: DateTime(2101));
+    if (picked != null && picked != _selectedDate) {
+      setState(() {
+        _selectedDate = picked;
+        _selectedDateStr = dateConvert(_selectedDate, '-');
+        futureContratos = contratoDAO.getContratosFilter(
+            column: 'data_criacao', id: _selectedDate.millisecondsSinceEpoch);
+      });
+      print(_selectedDate.millisecondsSinceEpoch);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        resizeToAvoidBottomPadding: false,
         appBar: appbar(title: 'Contrato'),
         bottomNavigationBar: navigation(context: context, index: 1),
         floatingActionButton: btFloatAction(
@@ -134,47 +160,52 @@ class _MyHomePageState extends State<MyHomePage> {
       future: futureContratos,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          easyLoading();
+          // easyLoading();
           return SizedBox();
         } else {
-          contratos.clear();
-          for (var item in snapshot.data) {
-            Contrato contrato = Contrato(
-                idContrato: item['idContrato'],
-                condicoesFK:
-                    item['condicoesFinanceiras_idCondicoesFinanceiras'],
-                contratadoFK: item['contratado_idContratado'],
-                contratanteFK: item['contratante_idContratante'],
-                dataCriacao: item['data_criacao'],
-                tipoContratoFK: item['tipoContrato_idTipoContrato'],
-                statusFK: item['status_idStatus']);
+          if (snapshot.data != null) {
+            contratos.clear();
+            print(snapshot.data);
+            for (var item in snapshot.data) {
+              Contrato contrato = Contrato(
+                  idContrato: item['idContrato'],
+                  condicoesFK:
+                      item['condicoesFinanceiras_idCondicoesFinanceiras'],
+                  contratadoFK: item['contratado_idContratado'],
+                  contratanteFK: item['contratante_idContratante'],
+                  dataCriacao: item['data_criacao'],
+                  tipoContratoFK: item['tipoContrato_idTipoContrato'],
+                  statusFK: item['status_idStatus']);
 
-            contratos.add(contrato);
+              contratos.add(contrato);
+            }
+
+            EasyLoading.dismiss();
+
+            return Container(
+                width: MediaQuery.of(context).size.width,
+                height: MediaQuery.of(context).size.height * 0.65,
+                child: ListView.builder(
+                  itemCount: contratos.length,
+                  itemBuilder: (context, index) {
+                    return Card(
+                      child: ListTile(
+                        onTap: () {
+                          Navigator.pushNamed(context, '/contrato/detail',
+                              arguments: snapshot.data[index]);
+                        },
+                        title: Text(
+                            'Contrato numero : ${contratos[index].idContrato}'),
+                        subtitle: Text(
+                            'criado: ${dateConvert(DateTime.fromMillisecondsSinceEpoch(contratos[index].dataCriacao), '-')}'),
+                      ),
+                    );
+                  },
+                ));
+          } else {
+            EasyLoading.dismiss();
+            return SizedBox();
           }
-
-          EasyLoading.dismiss();
-
-          return Container(
-              width: MediaQuery.of(context).size.width,
-              height: MediaQuery.of(context).size.height * 0.65,
-              child: ListView.builder(
-                itemCount: contratos.length,
-                itemBuilder: (context, index) {
-                  return Card(
-                    child: ListTile(
-                      onTap: () {
-                        print(snapshot.data[index]);
-                        Navigator.pushNamed(context, '/contrato/detail',
-                            arguments: snapshot.data[index]);
-                      },
-                      title: Text(
-                          'Contrato numero : ${contratos[index].idContrato}'),
-                      subtitle: Text(
-                          'criado: ${dateConvert(DateTime.fromMillisecondsSinceEpoch(contratos[index].dataCriacao), '-')}'),
-                    ),
-                  );
-                },
-              ));
         }
       },
     );
@@ -243,6 +274,59 @@ class _MyHomePageState extends State<MyHomePage> {
                       column: 'idStatus', id: data.id);
                 });
               },
+            ),
+          );
+        });
+        break;
+
+      case 'inserção':
+        setState(() {
+          _content = Container(
+            width: MediaQuery.of(context).size.width * 0.40,
+            height: 50,
+            child: btSecondary(
+                call: () {
+                  _getData(context);
+                  print(_selectedDate);
+                },
+                lable: _selectedDateStr,
+                context: context),
+          );
+        });
+        break;
+      case 'vigência':
+        setState(() {
+          _content = Container(
+            width: MediaQuery.of(context).size.width * 0.40,
+            height: 50,
+            child: Container(
+              child: TextField(
+                onChanged: (value) {
+                  if (value.isNotEmpty) {
+                    setState(() {
+                      futureContratos = contratoDAO.getContratosFilter(
+                          column: 'vigencia', id: int.parse(value));
+                    });
+                  }
+                },
+                controller: controller,
+                keyboardType: TextInputType.number,
+                style: TextStyle(fontSize: 14),
+                decoration: InputDecoration(
+                  hintText: 'vigência',
+                  hintStyle: TextStyle(fontSize: 14),
+                  filled: true,
+                  contentPadding: EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 20.0),
+                  focusedBorder: new OutlineInputBorder(
+                      borderRadius: const BorderRadius.all(
+                    const Radius.circular(10.0),
+                  )),
+                  border: new OutlineInputBorder(
+                      borderRadius: const BorderRadius.all(
+                    const Radius.circular(10.0),
+                  )),
+                ),
+              ),
             ),
           );
         });
