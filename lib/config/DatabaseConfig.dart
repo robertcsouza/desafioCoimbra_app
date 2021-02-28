@@ -51,7 +51,7 @@ class DatabaseConfig {
   drop({String table}) async {
     _database = await _databaseConfig.database;
     _database.execute("DROP TABLE $table").then((value) {
-      EasyLoading.showSuccess('executado com sucesso');
+      // EasyLoading.showSuccess('executado com sucesso');
     });
   }
 
@@ -75,5 +75,9 @@ class DatabaseConfig {
       Status status = Status(status: stat[i]);
       _database.insert('status', status.toMap());
     }
+  }
+
+  describeTable({String table}) async {
+    print(await _database.rawQuery('PRAGMA table_info($table)'));
   }
 }

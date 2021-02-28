@@ -6,11 +6,9 @@ import 'package:desafiocoimbra/Model/Contrato.dart';
 import 'package:desafiocoimbra/Model/Status.dart';
 import 'package:desafiocoimbra/components/AppBar.dart';
 import 'package:desafiocoimbra/components/Buttons.dart';
-import 'package:desafiocoimbra/components/EasyLoading.dart';
 import 'package:desafiocoimbra/components/NaviBar.dart';
-import 'package:desafiocoimbra/config/DatabaseConfig.dart';
+import 'package:desafiocoimbra/config/Migrations.dart';
 import 'package:desafiocoimbra/config/Routes.dart';
-import 'package:desafiocoimbra/config/Tables.dart';
 import 'package:desafiocoimbra/helper/ConvertDate.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
@@ -51,7 +49,7 @@ class _MyHomePageState extends State<MyHomePage> {
   ContratoDAO contratoDAO = ContratoDAO();
   ContratadoDAO contratadoDAO = ContratadoDAO();
   StatusDAO statusDAO = StatusDAO();
-  Widget _content = SizedBox();
+  Widget _content = SizedBox(height: 50, width: 100);
   List<Contratado> contratados = List();
   List<Status> status = List();
   List<Contrato> contratos = List();
@@ -63,6 +61,8 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     // TODO: implement initState
     super.initState();
+    status.clear();
+    contratos.clear();
     _inicializeDB();
     _getContratados();
     _getStatus();
@@ -94,22 +94,9 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   _inicializeDB() async {
-    DatabaseConfig config = DatabaseConfig();
-    config.inicializaDB();
-    db = await config.database;
-    //await config.drop(table: 'status');
-    //await config.drop(table: 'tipoContrato');
-
-    await config.createTables(db: db, sql: STATUS, verson: 1);
-    await config.createTables(db: db, sql: CONDICOES, verson: 1);
-    await config.createTables(db: db, sql: TIPO, verson: 1);
-    await config.createTables(db: db, sql: ENDERECO, verson: 1);
-    await config.createTables(db: db, sql: CONTRATANTE, verson: 1);
-    await config.createTables(db: db, sql: CONTRATADO, verson: 1);
-    await config.createTables(db: db, sql: CONTRATO, verson: 1);
-    //await config.fillStatus();
-    //await config.fillTipo();
-    //print(await db.rawQuery('PRAGMA table_info(contratante)'));
+    Migrations migrations = Migrations();
+    migrations.inicializeDB();
+    migrations.reconfigure();
   }
 
   Future<void> _getData(BuildContext context) async {
@@ -125,7 +112,6 @@ class _MyHomePageState extends State<MyHomePage> {
         futureContratos = contratoDAO.getContratosFilter(
             column: 'data_criacao', id: _selectedDate.millisecondsSinceEpoch);
       });
-      print(_selectedDate.millisecondsSinceEpoch);
     }
   }
 
@@ -165,7 +151,7 @@ class _MyHomePageState extends State<MyHomePage> {
         } else {
           if (snapshot.data != null) {
             contratos.clear();
-            print(snapshot.data);
+
             for (var item in snapshot.data) {
               Contrato contrato = Contrato(
                   idContrato: item['idContrato'],
